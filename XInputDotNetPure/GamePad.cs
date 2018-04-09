@@ -193,6 +193,28 @@ namespace XInputDotNetPure
         }
     }
 
+    public enum ButtonsConstants
+    {
+        DPadUp = 0x00000001,
+        DPadDown = 0x00000002,
+        DPadLeft = 0x00000004,
+        DPadRight = 0x00000008,
+        Start = 0x00000010,
+        Back = 0x00000020,
+        LeftThumb = 0x00000040,
+        RightThumb = 0x00000080,
+        LeftShoulder = 0x0100,
+        RightShoulder = 0x0200,
+        Guide = 0x0400,
+        A = 0x1000,
+        B = 0x2000,
+        X = 0x4000,
+        Y = 0x8000,
+
+        LeftTrigger = 0x10000,
+        RightTrigger = 0x20000,
+    }
+
     public struct GamePadState
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -214,6 +236,9 @@ namespace XInputDotNetPure
             }
         }
 
+        // From XInput.h
+        private const uint XInputGamepadTriggerThreshold = 30;
+
         bool isConnected;
         uint packetNumber;
         GamePadButtons buttons;
@@ -221,24 +246,9 @@ namespace XInputDotNetPure
         GamePadThumbSticks thumbSticks;
         GamePadTriggers triggers;
 
-        enum ButtonsConstants
-        {
-            DPadUp = 0x00000001,
-            DPadDown = 0x00000002,
-            DPadLeft = 0x00000004,
-            DPadRight = 0x00000008,
-            Start = 0x00000010,
-            Back = 0x00000020,
-            LeftThumb = 0x00000040,
-            RightThumb = 0x00000080,
-            LeftShoulder = 0x0100,
-            RightShoulder = 0x0200,
-            Guide = 0x0400,
-            A = 0x1000,
-            B = 0x2000,
-            X = 0x4000,
-            Y = 0x8000
-        }
+        private uint rawButtons;
+        private byte rawLeftTrigger;
+        private byte rawRightTrigger;
 
         internal GamePadState(bool isConnected, RawState rawState, GamePadDeadZone deadZone)
         {
@@ -257,6 +267,14 @@ namespace XInputDotNetPure
             }
 
             packetNumber = rawState.dwPacketNumber;
+
+            rawButtons = rawState.Gamepad.wButtons;
+            rawLeftTrigger = rawState.Gamepad.bLeftTrigger;
+            rawRightTrigger = rawState.Gamepad.bRightTrigger;
+
+            rawButtons |= (rawLeftTrigger > XInputGamepadTriggerThreshold) ? (uint)ButtonsConstants.LeftTrigger : 0;
+            rawButtons |= (rawRightTrigger > XInputGamepadTriggerThreshold) ? (uint)ButtonsConstants.RightTrigger : 0;
+
             buttons = new GamePadButtons(
                 (rawState.Gamepad.wButtons & (uint)ButtonsConstants.Start) != 0 ? ButtonState.Pressed : ButtonState.Released,
                 (rawState.Gamepad.wButtons & (uint)ButtonsConstants.Back) != 0 ? ButtonState.Pressed : ButtonState.Released,
