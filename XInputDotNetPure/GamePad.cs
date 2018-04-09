@@ -19,6 +19,38 @@ namespace XInputDotNetPure
         Released
     }
 
+    public enum Axis
+    {
+        LeftX = 0,
+        LeftY = 1, 
+        RightX = 2,
+        RightY = 3,
+        LeftTrigger = 4,
+        RightRigger = 5
+    }
+
+    public enum ButtonsConstants
+    {
+        DPadUp = 0x00000001,
+        DPadDown = 0x00000002,
+        DPadLeft = 0x00000004,
+        DPadRight = 0x00000008,
+        Start = 0x00000010,
+        Back = 0x00000020,
+        LeftThumb = 0x00000040,
+        RightThumb = 0x00000080,
+        LeftShoulder = 0x0100,
+        RightShoulder = 0x0200,
+        Guide = 0x0400,
+        A = 0x1000,
+        B = 0x2000,
+        X = 0x4000,
+        Y = 0x8000,
+
+        LeftTrigger = 0x10000,
+        RightTrigger = 0x20000,
+    }
+
     public struct GamePadButtons
     {
         ButtonState start, back, leftStick, rightStick, leftShoulder, rightShoulder, guide, a, b, x, y;
@@ -193,28 +225,6 @@ namespace XInputDotNetPure
         }
     }
 
-    public enum ButtonsConstants
-    {
-        DPadUp = 0x00000001,
-        DPadDown = 0x00000002,
-        DPadLeft = 0x00000004,
-        DPadRight = 0x00000008,
-        Start = 0x00000010,
-        Back = 0x00000020,
-        LeftThumb = 0x00000040,
-        RightThumb = 0x00000080,
-        LeftShoulder = 0x0100,
-        RightShoulder = 0x0200,
-        Guide = 0x0400,
-        A = 0x1000,
-        B = 0x2000,
-        X = 0x4000,
-        Y = 0x8000,
-
-        LeftTrigger = 0x10000,
-        RightTrigger = 0x20000,
-    }
-
     public struct GamePadState
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -333,6 +343,20 @@ namespace XInputDotNetPure
         public GamePadThumbSticks ThumbSticks
         {
             get { return thumbSticks; }
+        }
+
+        public float GetAxis(Axis axis)
+        {
+            switch (axis) {
+            case Axis.LeftX: return thumbSticks.Left.X;
+            case Axis.LeftY: return thumbSticks.Left.Y;
+            case Axis.RightX: return thumbSticks.Right.X;
+            case Axis.RightY: return thumbSticks.Right.Y;
+            case Axis.LeftTrigger: return triggers.Left;
+            case Axis.RightRigger: return triggers.Right;
+            }
+
+            return 0.0f;
         }
     }
 
